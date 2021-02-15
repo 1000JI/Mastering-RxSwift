@@ -31,6 +31,53 @@ import RxSwift
 let disposeBag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
+// 생성자를 호출 할 때에는 파라미터를 전달하지 않는다.
+let subject = PublishSubject<String>()
+
+subject.onNext("Hello")
+
+
+let o1 = subject.subscribe { print(">> 1", $0) }
+o1.disposed(by: disposeBag)
+
+subject.onNext("RxSwift")
+/* 출력문
+ >> 1 next(RxSwift)
+ */
+
+
+let o2 = subject.subscribe { print(">> 2", $0) }
+o2.disposed(by: disposeBag)
+
+subject.onNext("Subject")
+/* 출력문
+ >> 1 next(RxSwift)
+ >> 1 next(Subject)
+ >> 2 next(Subject)
+ */
+
+
+subject.onCompleted()
+//subject.onError(MyError.error)
+/* 출력문
+ >> 1 next(RxSwift)
+ >> 1 next(Subject)
+ >> 2 next(Subject)
+ >> 1 completed
+ >> 2 completed
+ */
+
+
+let o3 = subject.subscribe { print(">> 3", $0) }
+o2.disposed(by: disposeBag)
+/* 출력문
+ >> 1 next(RxSwift)
+ >> 1 next(Subject)
+ >> 2 next(Subject)
+ >> 1 completed
+ >> 2 completed
+ >> 3 completed => 새로운 observer에게 전달할 이벤트가 없기 때문에 바로 Completed Event를 전달해서 종료한다.(=Error)
+ */

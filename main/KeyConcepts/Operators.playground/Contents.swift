@@ -29,9 +29,11 @@ import RxSwift
 
 let bag = DisposeBag()
 
-Observable.from([1, 2, 3, 4, 5, 6, 7, 8, 9])
-   .subscribe { print($0) }
-   .disposed(by: bag)
+Observable.from([1, 2, 3, 4, 5, 6, 7, 8, 9]) // 1~9까지 연속적으로 방출하는 from 연산자이다.
+    .take(5) // 파라미터로 지정한 수 만큼 방출하는 새로운 Observable을 생성한다.(1~5)
+    .filter { $0.isMultiple(of: 2) } // 2, 4
+    .subscribe { print($0) }
+    .disposed(by: bag)
 
 
 
