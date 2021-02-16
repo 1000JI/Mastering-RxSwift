@@ -31,6 +31,39 @@ import RxCocoa
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
+let subject = AsyncSubject<Int>()
+
+subject
+    .subscribe { print("async 1 >>", $0) }
+    .disposed(by: bag)
+
+subject.onNext(1)
+
+subject.onNext(2)
+subject.onNext(3)
+
+subject.onCompleted()
+/* 출력문
+ next(3)
+ completed
+ */
+
+
+//subject.onError(MyError.error)
+/* 출력문
+ error(error)
+ */
+
+
+subject
+    .subscribe { print("async 2 >>", $0) }
+    .disposed(by: bag)
+/* 출력문
+ async 1 >> next(3)
+ async 1 >> completed
+ async 2 >> next(3)
+ async 2 >> completed
+ */

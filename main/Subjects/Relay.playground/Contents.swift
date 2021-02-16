@@ -30,4 +30,41 @@ import RxCocoa
 
 let bag = DisposeBag()
 
+let prelay = PublishRelay<Int>()
+prelay.subscribe { print("1: \($0)") }
+    .disposed(by: bag)
+
+//prelay.onNext // Relay에서는 onNext 이벤트를 사용하지 않는다.
+prelay.accept(1)
+/* 출력문
+ 1: next(1)
+ */
+
+
+let brelay = BehaviorRelay(value: 1)
+brelay.accept(2)
+
+brelay.subscribe { print("2: \($0)") }
+    .disposed(by: bag)
+/* 출력문
+ 1: next(1)
+ 2: next(2)
+ */
+
+
+brelay.accept(3)
+/* 출력문
+ 1: next(1)
+ 2: next(2)
+ 2: next(3)
+ */
+
+
+print(brelay.value)
+/* 출력문
+ 1: next(1)
+ 2: next(2)
+ 2: next(3)
+ 3
+ */
 
