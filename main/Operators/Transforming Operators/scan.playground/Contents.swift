@@ -29,3 +29,20 @@ import RxSwift
 
 let disposeBag = DisposeBag()
 
+Observable.range(start: 1, count: 10)
+    .scan(0, accumulator: +) // reduce..? 최종 결과만 필요다하면!!!
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(1)
+ next(3)
+ next(6)
+ next(10)
+ next(15)
+ next(21)
+ next(28)
+ next(36)
+ next(45)
+ next(55)
+ completed
+ */

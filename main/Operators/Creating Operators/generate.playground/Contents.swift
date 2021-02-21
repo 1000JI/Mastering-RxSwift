@@ -31,6 +31,41 @@ let disposeBag = DisposeBag()
 let red = "🔴"
 let blue = "🔵"
 
+Observable.generate(initialState: 0, condition: { $0 <= 10 }, iterate: { $0 + 2 })
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(0)
+ next(2)
+ next(4)
+ next(6)
+ next(8)
+ next(10)
+ completed
+ */
+
+Observable.generate(initialState: red,
+                    condition: { $0.count < 15 },
+                    iterate: { $0.count.isMultiple(of: 2) ? $0 + red : $0 + blue })
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(🔴)
+ next(🔴🔵)
+ next(🔴🔵🔴)
+ next(🔴🔵🔴🔵)
+ next(🔴🔵🔴🔵🔴)
+ next(🔴🔵🔴🔵🔴🔵)
+ next(🔴🔵🔴🔵🔴🔵🔴)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴)
+ next(🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵🔴🔵)
+ completed
+ */
 
 
 

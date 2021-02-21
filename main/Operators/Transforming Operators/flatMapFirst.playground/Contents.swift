@@ -35,14 +35,30 @@ let b = BehaviorSubject(value: 2)
 let subject = PublishSubject<BehaviorSubject<Int>>()
 
 subject
-   .flatMap { $0.asObservable() }
-   .subscribe { print($0) }
-   .disposed(by: disposeBag)
+//    .flatMap { $0.asObservable() }
+    .flatMapFirst { $0.asObservable() }
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
 
-subject.onNext(a)
+subject.onNext(a) // *
 subject.onNext(b)
 
-a.onNext(11)
+a.onNext(11) // *
 b.onNext(22)
 b.onNext(222)
-a.onNext(111)
+a.onNext(111) // *
+
+/* .flatMap { $0.asObservable() } 결과
+ next(1)
+ next(2)
+ next(11)
+ next(22)
+ next(222)
+ next(111)
+ */
+
+/* .flatMapFirst { $0.asObservable() } 결과
+ next(1)
+ next(11)
+ next(111)
+ */

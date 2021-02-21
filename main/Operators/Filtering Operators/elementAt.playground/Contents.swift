@@ -31,8 +31,14 @@ let disposeBag = DisposeBag()
 let fruits = ["🍏", "🍎", "🍋", "🍓", "🍇"]
 
 
-
-
+Observable.from(fruits)
+    .elementAt(1)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(🍎)
+ completed
+ */
 
 
 

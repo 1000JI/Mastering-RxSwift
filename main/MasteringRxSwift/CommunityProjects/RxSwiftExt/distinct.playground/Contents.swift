@@ -30,14 +30,14 @@ let list = [1, 2, 2, 3, 3, 1, 2, 3]
 print("=== distinctUntilChanged ")
 
 Observable.from(list)
-   .distinctUntilChanged()
-   .subscribe { print($0) }
-   .disposed(by: bag)
+    .distinctUntilChanged()
+    .subscribe { print($0) }
+    .disposed(by: bag)
 
 print("=== distinct ")
 
 Observable.from(list)
-   .distinct()
-   .subscribe { print($0) }
-   .disposed(by: bag)
+    .distinct()
+    .subscribe { print($0) }
+    .disposed(by: bag)
 

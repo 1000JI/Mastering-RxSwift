@@ -29,7 +29,12 @@ import RxSwift
 
 let disposeBag = DisposeBag()
 
-
+Observable<Void>.empty()
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ completed
+ */
 
 
 

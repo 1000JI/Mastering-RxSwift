@@ -30,4 +30,17 @@ import RxSwift
 let disposeBag = DisposeBag()
 let numbers = [1, 1, 3, 2, 2, 3, 1, 5, 5, 7, 7, 7]
 
-
+Observable.from(numbers)
+    .distinctUntilChanged()
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(1)
+ next(3)
+ next(2)
+ next(3)
+ next(1)
+ next(5)
+ next(7)
+ completed
+ */

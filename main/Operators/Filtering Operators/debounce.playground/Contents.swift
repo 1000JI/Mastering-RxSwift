@@ -30,29 +30,53 @@ import RxSwift
 let disposeBag = DisposeBag()
 
 let buttonTap = Observable<String>.create { observer in
-   DispatchQueue.global().async {
-      for i in 1...10 {
-         observer.onNext("Tap \(i)")
-         Thread.sleep(forTimeInterval: 0.3)
-      }
-      
-      Thread.sleep(forTimeInterval: 1)
-      
-      for i in 11...20 {
-         observer.onNext("Tap \(i)")
-         Thread.sleep(forTimeInterval: 0.5)
-      }
-      
-      observer.onCompleted()
-   }
-   
-   return Disposables.create {
-      
-   }
+    DispatchQueue.global().async {
+        for i in 1...10 {
+            observer.onNext("Tap \(i)")
+            Thread.sleep(forTimeInterval: 0.3)
+        }
+        
+        Thread.sleep(forTimeInterval: 1)
+        
+        for i in 11...20 {
+            observer.onNext("Tap \(i)")
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        
+        observer.onCompleted()
+    }
+    
+    return Disposables.create {
+        
+    }
 }
 
-buttonTap   
-   .subscribe { print($0) }
-   .disposed(by: disposeBag)
+buttonTap
+    .debounce(.milliseconds(1000), scheduler: MainScheduler.instance)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(Tap 10)
+ next(Tap 20)
+ completed
+ */
 
 
+buttonTap
+    .debounce(.milliseconds(400), scheduler: MainScheduler.instance)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(Tap 10)
+ next(Tap 11)
+ next(Tap 12)
+ next(Tap 13)
+ next(Tap 14)
+ next(Tap 15)
+ next(Tap 16)
+ next(Tap 17)
+ next(Tap 18)
+ next(Tap 19)
+ next(Tap 20)
+ completed
+ */

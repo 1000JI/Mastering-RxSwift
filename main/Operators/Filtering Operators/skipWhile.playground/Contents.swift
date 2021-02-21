@@ -29,3 +29,20 @@ import RxSwift
 
 let disposeBag = DisposeBag()
 let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+Observable.from(numbers)
+    .skipWhile { !$0.isMultiple(of: 2) }
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(2)
+ next(3)
+ next(4)
+ next(5)
+ next(6)
+ next(7)
+ next(8)
+ next(9)
+ next(10)
+ completed
+ */

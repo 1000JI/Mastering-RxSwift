@@ -30,10 +30,15 @@ import RxSwift
 let disposeBag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
-
+Observable<Void>.error(MyError.error)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ error(error)
+ */
 
 
 

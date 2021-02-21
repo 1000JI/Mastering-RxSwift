@@ -30,5 +30,25 @@ import RxSwift
 let disposeBag = DisposeBag()
 let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+let subject = PublishSubject<Int>()
 
+subject.takeLast(2)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+
+numbers.forEach { subject.onNext($0) } // 9, 10
+
+subject.onNext(11) // 10, 11
+
+subject.onCompleted()
+/* 출력문
+ next(10)
+ next(11)
+ completed
+ */
+
+//subject.onError(<#T##error: Error##Error#>)
+/* 출력문
+ error(error)
+ */
 

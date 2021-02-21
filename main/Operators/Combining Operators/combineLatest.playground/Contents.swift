@@ -30,10 +30,39 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let greetings = PublishSubject<String>()
 let languages = PublishSubject<String>()
 
+Observable.combineLatest(greetings, languages) { lhs, rhs -> String in
+    return "\(lhs) \(rhs)"
+}
+.subscribe { print($0) }
+.disposed(by: bag)
 
+greetings.onNext("Hi")
+languages.onNext("World!")
+/* 출력
+ next(Hi World!)
+ */
+
+greetings.onNext("Hello")
+languages.onNext("RxSwift")
+/* 출력
+ next(Hello World!)
+ next(Hello RxSwift)
+ */
+
+greetings.onCompleted()
+languages.onNext("TESTING")
+
+/* 출력
+ next(Hello TESTING)
+ */
+
+languages.onCompleted()
+/* 출력
+ completed
+ */

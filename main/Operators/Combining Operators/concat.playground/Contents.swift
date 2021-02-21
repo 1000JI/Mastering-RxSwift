@@ -31,4 +31,50 @@ let bag = DisposeBag()
 let fruits = Observable.from(["🍏", "🍎", "🥝", "🍑", "🍋", "🍉"])
 let animals = Observable.from(["🐶", "🐱", "🐹", "🐼", "🐯", "🐵"])
 
+Observable.concat([fruits, animals])
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ next(🍏)
+ next(🍎)
+ next(🥝)
+ next(🍑)
+ next(🍋)
+ next(🍉)
+ next(🐶)
+ next(🐱)
+ next(🐹)
+ next(🐼)
+ next(🐯)
+ next(🐵)
+ completed
+ */
 
+
+fruits.concat(animals)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ next(🍏)
+ next(🍎)
+ next(🥝)
+ next(🍑)
+ next(🍋)
+ next(🍉)
+ next(🐶)
+ next(🐱)
+ next(🐹)
+ next(🐼)
+ next(🐯)
+ next(🐵)
+ completed
+ */
+
+
+Observable.concat([fruits, animals])
+    .toArray()
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ success(["🍏", "🍎", "🥝", "🍑", "🍋", "🍉", "🐶", "🐱", "🐹", "🐼", "🐯", "🐵"])
+ */

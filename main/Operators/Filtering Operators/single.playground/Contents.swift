@@ -30,4 +30,44 @@ import RxSwift
 let disposeBag = DisposeBag()
 let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
+Observable.just(1)
+    .single()
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(1)
+ completed
+ */
 
+
+Observable.from(numbers)
+    .single()
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(1)
+ error(Sequence contains more than one element.)
+ */
+
+
+Observable.from(numbers)
+    .single { $0 == 3 }
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문
+ next(3)
+ completed
+ */
+
+
+// 전달 시점 확인
+let subject = PublishSubject<Int>()
+
+subject.single()
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+
+subject.onNext(100)
+/* 출력문
+ next(100)
+ */

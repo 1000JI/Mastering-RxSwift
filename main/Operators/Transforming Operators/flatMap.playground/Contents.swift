@@ -29,5 +29,32 @@ import RxSwift
 
 let disposeBag = DisposeBag()
 
+let a = BehaviorSubject(value: 1)
+let b = BehaviorSubject(value: 2)
 
+let subject = PublishSubject<BehaviorSubject<Int>>()
 
+subject
+    .flatMap { $0.asObservable() } // 원하는 Observable로 Return
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+
+subject.onNext(a)
+/* 출력문
+ next(1)
+ */
+
+subject.onNext(b)
+/* 출력문
+ next(2)
+ */
+
+a.onNext(11)
+/* 출력문
+ next(11)
+ */
+
+b.onNext(22)
+/* 출력문
+ next(11)
+ */

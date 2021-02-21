@@ -30,9 +30,34 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let numbers = PublishSubject<Int>()
 let strings = PublishSubject<String>()
+
+Observable.zip(numbers, strings) { "\($0) - \($1)" }
+    .subscribe { print($0) }
+    .disposed(by: bag)
+
+numbers.onNext(1)
+strings.onNext("one")
+/* 출력
+ next(1 - one)
+ */
+
+numbers.onNext(2)
+strings.onNext("two")
+/* 출력
+ next(2 - two)
+ */
+
+numbers.onCompleted()
+//numbers.onError(MyError.error) // zip 연산자도 마찬가지로 Error가 발생하면 즉시 Observer에게 전달하고 종료된다.
+strings.onNext("three")
+
+strings.onCompleted()
+/* 출력
+ completed
+ */
 

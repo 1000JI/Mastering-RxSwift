@@ -35,7 +35,47 @@ let b = BehaviorSubject(value: 2)
 let subject = PublishSubject<BehaviorSubject<Int>>()
 
 subject
-   .flatMap { $0.asObservable() }
-   .subscribe { print($0) }
-   .disposed(by: disposeBag)
+//    .flatMap { $0.asObservable() }
+    .flatMapLatest { $0.asObservable() }
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
 
+subject.onNext(a)
+/* 출력문
+ next(1)
+ */
+
+a.onNext(11)
+/* 출력문
+ next(11)
+ */
+
+subject.onNext(b) // a가 방출하는 요소는 무시하고 b가 방출하는 요소만 전달한다.
+/* 출력문
+ next(2)
+ */
+
+b.onNext(22)
+/* 출력문
+ next(22)
+ */
+
+a.onNext(111)
+/* 출력문
+ 
+ */
+
+subject.onNext(a)
+/* 출력문
+ next(111)
+ */
+
+b.onNext(222)
+/* 출력문
+ 
+ */
+
+a.onNext(1111)
+/* 출력문
+ next(1111)
+ */

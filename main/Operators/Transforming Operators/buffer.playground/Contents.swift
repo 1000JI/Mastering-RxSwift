@@ -29,6 +29,27 @@ import RxSwift
 
 let disposeBag = DisposeBag()
 
+// timeSpan, count 모두 Maximum 값이기 때문에 정확한 숫자가 아니라 최대의 숫자이다.
+Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance)
+    .buffer(timeSpan: .seconds(5), count: 3, scheduler: MainScheduler.instance)
+    .take(5)
+    .subscribe { print($0) }
+    .disposed(by: disposeBag)
+/* 출력문(2초)
+ next([0])
+ next([1, 2, 3])
+ next([4, 5])
+ next([6, 7])
+ next([8, 9])
+ completed
+ */
 
-
+/* 출력문(5초)
+ next([0, 1, 2])
+ next([3, 4, 5])
+ next([6, 7, 8])
+ next([9, 10, 11])
+ next([12, 13, 14])
+ completed
+ */
 
