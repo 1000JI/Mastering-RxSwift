@@ -30,10 +30,44 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let trigger = PublishSubject<Void>()
 let data = PublishSubject<String>()
 
+trigger.withLatestFrom(data)
+    .subscribe { print($0) }
+    .disposed(by: bag)
 
+data.onNext("Hello")
+data.onNext("World!")
+
+trigger.onNext(())
+/* 출력
+ next(World!)
+ */
+
+trigger.onNext(())
+/* 출력
+ next(World!)
+ */
+
+data.onCompleted()
+trigger.onNext(())
+/* 출력
+ next(World!)
+ */
+
+// 또는
+
+data.onError(MyError.error)
+trigger.onNext(())
+/* 출력
+ error(error)
+ */
+
+trigger.onCompleted() // onError와 같음
+/* 출력
+ completed
+ */

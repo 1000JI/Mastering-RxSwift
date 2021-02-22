@@ -30,9 +30,36 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let trigger = PublishSubject<Void>()
 let data = PublishSubject<String>()
+
+data.sample(trigger)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+
+trigger.onNext(())
+data.onNext("Hello")
+
+trigger.onNext(())
+/* 출력
+ next(Hello)
+ */
+
+trigger.onNext(()) // sample 연산자는 동일한 Next 이벤트를 2번 이상 방출하지 않는다.
+
+data.onCompleted()
+trigger.onNext(())
+/* 출력
+ completed
+ */
+
+// 또는
+
+data.onError(MyError.error) // trigger가 Next 이벤트를 방출하지 않더라도 Error 이벤트 전달
+/* 출력
+ error(error)
+ */
 

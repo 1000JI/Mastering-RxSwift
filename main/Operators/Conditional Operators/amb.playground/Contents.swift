@@ -30,11 +30,44 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let a = PublishSubject<String>()
 let b = PublishSubject<String>()
 let c = PublishSubject<String>()
 
+a.amb(b)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+
+a.onNext("A")
+b.onNext("B")
+/* 출력
+ next(A)
+ */
+
+b.onCompleted()
+a.onCompleted()
+/* 출력
+ completed
+ */
+
+// 또는
+
+Observable.amb([a, b, c])
+    .subscribe { print($0) }
+    .disposed(by: bag)
+
+c.onNext("3")
+b.onNext("2")
+a.onNext("1")
+
+a.onNext("A")
+b.onNext("B")
+c.onNext("C")
+/* 출력
+ next(3)
+ next(C)
+ */
 
