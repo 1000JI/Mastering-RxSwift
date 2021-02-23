@@ -30,23 +30,46 @@ import RxSwift
 let bag = DisposeBag()
 
 let source = Observable<String>.create { observer in
-   let url = URL(string: "https://kxcoding-study.azurewebsites.net/api/string")!
-   let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-      if let data = data, let html = String(data: data, encoding: .utf8) {
-         observer.onNext(html)
-      }
-      
-      observer.onCompleted()
-   }
-   task.resume()
-   
-   return Disposables.create {
-      task.cancel()
-   }
+    let url = URL(string: "https://kxcoding-study.azurewebsites.net/api/string")!
+    let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
+        if let data = data, let html = String(data: data, encoding: .utf8) {
+            observer.onNext(html)
+        }
+        
+        observer.onCompleted()
+    }
+    task.resume()
+    
+    return Disposables.create {
+        task.cancel()
+    }
 }
 .debug()
+.share()
 
 
 source.subscribe().disposed(by: bag)
 source.subscribe().disposed(by: bag)
 source.subscribe().disposed(by: bag)
+
+/* 출력 share() 전
+ 2021-02-23 23:45:37.622: overview.playground:47 (__lldb_expr_1) -> subscribed
+ 2021-02-23 23:45:37.708: overview.playground:47 (__lldb_expr_1) -> subscribed
+ 2021-02-23 23:45:37.709: overview.playground:47 (__lldb_expr_1) -> subscribed
+ 2021-02-23 23:45:44.288: overview.playground:47 (__lldb_expr_1) -> Event next(Hello)
+ 2021-02-23 23:45:44.289: overview.playground:47 (__lldb_expr_1) -> Event completed
+ 2021-02-23 23:45:44.289: overview.playground:47 (__lldb_expr_1) -> isDisposed
+ 2021-02-23 23:45:44.290: overview.playground:47 (__lldb_expr_1) -> Event next(Hello)
+ 2021-02-23 23:45:44.290: overview.playground:47 (__lldb_expr_1) -> Event completed
+ 2021-02-23 23:45:44.290: overview.playground:47 (__lldb_expr_1) -> isDisposed
+ 2021-02-23 23:45:44.290: overview.playground:47 (__lldb_expr_1) -> Event next(Hello)
+ 2021-02-23 23:45:44.291: overview.playground:47 (__lldb_expr_1) -> Event completed
+ 2021-02-23 23:45:44.291: overview.playground:47 (__lldb_expr_1) -> isDisposed
+ */
+
+/* 출력 share() 후
+ 2021-02-23 23:49:19.486: overview.playground:47 (__lldb_expr_3) -> subscribed
+ 2021-02-23 23:49:19.592: overview.playground:47 (__lldb_expr_3) -> Event next(Hello)
+ 2021-02-23 23:49:19.594: overview.playground:47 (__lldb_expr_3) -> Event completed
+ 2021-02-23 23:49:19.594: overview.playground:47 (__lldb_expr_3) -> isDisposed
+ */

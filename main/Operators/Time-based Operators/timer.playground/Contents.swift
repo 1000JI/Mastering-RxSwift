@@ -29,4 +29,26 @@ import RxSwift
 
 let bag = DisposeBag()
 
+//Observable<Int>.timer(.seconds(1), scheduler: MainScheduler.instance)
+//    .subscribe { print($0) }
+//    .disposed(by: bag)
+/* 출력
+ next(0)
+ completed
+ */
 
+Observable<Int>.timer(.seconds(1), period: .milliseconds(500), scheduler: MainScheduler.instance)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력(0.5초 간격)
+ next(0)
+ next(1)
+ next(2)
+ next(3)
+ next(4)
+ next(5)
+ next(6)
+ next(7)
+ next(8)
+ ...
+ */
