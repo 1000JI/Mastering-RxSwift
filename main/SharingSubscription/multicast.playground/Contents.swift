@@ -30,7 +30,10 @@ import RxSwift
 let bag = DisposeBag()
 let subject = PublishSubject<Int>()
 
-let source = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance).take(5)
+//let source = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance).take(5) // 수정 전
+let source = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance) // 수정 후
+    .take(5)
+    .multicast(subject)
 
 source
     .subscribe { print("🔵", $0) }
@@ -40,6 +43,35 @@ source
     .delaySubscription(.seconds(3), scheduler: MainScheduler.instance)
     .subscribe { print("🔴", $0) }
     .disposed(by: bag)
+/* 출력 수정 전
+ 🔵 next(0)
+ 🔵 next(1)
+ 🔵 next(2)
+ 🔵 next(3)
+ 🔴 next(0)
+ 🔵 next(4)
+ 🔵 completed
+ 🔴 next(1)
+ 🔴 next(2)
+ 🔴 next(3)
+ 🔴 next(4)
+ 🔴 completed
+ */
+
+source.connect() //.disposed(by: bag)
+/* 출력
+ 🔵 next(0)
+ 🔵 next(1)
+ 🔵 next(2)
+ 🔴 next(2)
+ 🔵 next(3)
+ 🔴 next(3)
+ 🔵 next(4)
+ 🔴 next(4)
+ 🔵 completed
+ 🔴 completed
+ */
+
 
 
 

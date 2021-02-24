@@ -28,24 +28,56 @@ import RxSwift
  */
 
 let bag = DisposeBag()
-let source = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance).debug()
+let source = Observable<Int>.interval(.seconds(1), scheduler: MainScheduler.instance).debug().share(replay: 5, scope: .forever)
 
 let observer1 = source
-   .subscribe { print("🔵", $0) }
+    .subscribe { print("🔵", $0) }
 
 let observer2 = source
-   .delaySubscription(.seconds(3), scheduler: MainScheduler.instance)
-   .subscribe { print("🔴", $0) }
+    .delaySubscription(.seconds(3), scheduler: MainScheduler.instance)
+    .subscribe { print("🔴", $0) }
 
 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-   observer1.dispose()
-   observer2.dispose()
+    observer1.dispose()
+    observer2.dispose()
 }
 
 DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
-   let observer3 = source.subscribe { print("⚫️", $0) }
-
-   DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-      observer3.dispose()
-   }
+    let observer3 = source.subscribe { print("⚫️", $0) }
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        observer3.dispose()
+    }
 }
+/* 출력
+ 2021-02-24 01:05:53.178: share.playground:31 (__lldb_expr_27) -> subscribed
+ 2021-02-24 01:05:54.214: share.playground:31 (__lldb_expr_27) -> Event next(0)
+ 🔵 next(0)
+ 2021-02-24 01:05:55.215: share.playground:31 (__lldb_expr_27) -> Event next(1)
+ 🔵 next(1)
+ 2021-02-24 01:05:56.215: share.playground:31 (__lldb_expr_27) -> Event next(2)
+ 🔵 next(2)
+ 🔴 next(0)
+ 🔴 next(1)
+ 🔴 next(2)
+ 2021-02-24 01:05:57.215: share.playground:31 (__lldb_expr_27) -> Event next(3)
+ 🔵 next(3)
+ 🔴 next(3)
+ 2021-02-24 01:05:58.214: share.playground:31 (__lldb_expr_27) -> Event next(4)
+ 🔵 next(4)
+ 🔴 next(4)
+ 2021-02-24 01:05:58.716: share.playground:31 (__lldb_expr_27) -> isDisposed
+ ⚫️ next(0)
+ ⚫️ next(1)
+ ⚫️ next(2)
+ ⚫️ next(3)
+ ⚫️ next(4)
+ 2021-02-24 01:06:00.915: share.playground:31 (__lldb_expr_27) -> subscribed
+ 2021-02-24 01:06:01.915: share.playground:31 (__lldb_expr_27) -> Event next(0)
+ ⚫️ next(0)
+ 2021-02-24 01:06:02.915: share.playground:31 (__lldb_expr_27) -> Event next(1)
+ ⚫️ next(1)
+ 2021-02-24 01:06:03.917: share.playground:31 (__lldb_expr_27) -> Event next(2)
+ ⚫️ next(2)
+ 2021-02-24 01:06:03.917: share.playground:31 (__lldb_expr_27) -> isDisposed
+ */
