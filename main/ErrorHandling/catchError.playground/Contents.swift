@@ -30,16 +30,24 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 let subject = PublishSubject<Int>()
 let recovery = PublishSubject<Int>()
 
 subject
-   .subscribe { print($0) }
-   .disposed(by: bag)
+    .catchError { _ in recovery }
+    .subscribe { print($0) }
+    .disposed(by: bag)
 
+subject.onError(MyError.error)
 
+subject.onNext(11) // Not Running
 
-
+recovery.onNext(22)
+recovery.onCompleted()
+/* 출력
+ next(22)
+ completed
+ */

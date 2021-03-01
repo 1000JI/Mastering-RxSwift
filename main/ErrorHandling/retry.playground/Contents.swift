@@ -30,29 +30,69 @@ import RxSwift
 let bag = DisposeBag()
 
 enum MyError: Error {
-   case error
+    case error
 }
 
 var attempts = 1
 
 let source = Observable<Int>.create { observer in
-   let currentAttempts = attempts
-   print("#\(currentAttempts) START")
-   
-   if attempts < 3 {
-      observer.onError(MyError.error)
-      attempts += 1
-   }
-   
-   observer.onNext(1)
-   observer.onNext(2)
-   observer.onCompleted()
-         
-   return Disposables.create {
-      print("#\(currentAttempts) END")
-   }
+    let currentAttempts = attempts
+    print("#\(currentAttempts) START")
+    
+    if attempts < 3 {
+        observer.onError(MyError.error)
+        attempts += 1
+    }
+    
+    observer.onNext(1)
+    observer.onNext(2)
+    observer.onCompleted()
+    
+    return Disposables.create {
+        print("#\(currentAttempts) END")
+    }
 }
 
+
 source
-   .subscribe { print($0) }
-   .disposed(by: bag)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ #1 START
+ error(error)
+ #1 END
+ */
+
+
+source
+    .retry() // 재시도 횟수를 파라미터로 전달 할 때에는 +1 하여 전달해야 한다.
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ #1 START
+ #1 END
+ #2 START
+ #2 END
+ #3 START
+ next(1)
+ next(2)
+ completed
+ #3 END
+ */
+
+
+source
+    .retry(7)
+    .subscribe { print($0) }
+    .disposed(by: bag)
+/* 출력
+ #1 START // 본 로직
+ #1 END
+ #2 START // 재시도
+ #2 END
+ #3 START // 재시도
+ next(1)
+ next(2)
+ completed
+ #3 END
+ */

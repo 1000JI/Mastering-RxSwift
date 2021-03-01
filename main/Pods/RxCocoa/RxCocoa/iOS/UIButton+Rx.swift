@@ -27,12 +27,12 @@ import RxSwift
 import UIKit
 
 extension Reactive where Base: UIButton {
-
+    
     /// Reactive wrapper for `PrimaryActionTriggered` control event.
     public var primaryAction: ControlEvent<Void> {
         return controlEvent(.primaryActionTriggered)
     }
-
+    
 }
 
 #endif
@@ -50,14 +50,14 @@ extension Reactive where Base: UIButton {
             button.setTitle(title, for: controlState)
         }
     }
-
+    
     /// Reactive wrapper for `setImage(_:for:)`
     public func image(for controlState: UIControl.State = []) -> Binder<UIImage?> {
         return Binder(self.base) { button, image -> Void in
             button.setImage(image, for: controlState)
         }
     }
-
+    
     /// Reactive wrapper for `setBackgroundImage(_:for:)`
     public func backgroundImage(for controlState: UIControl.State = []) -> Binder<UIImage?> {
         return Binder(self.base) { button, image -> Void in
@@ -70,17 +70,17 @@ extension Reactive where Base: UIButton {
 
 #if os(iOS) || os(tvOS)
 
-    import RxSwift
-    import UIKit
+import RxSwift
+import UIKit
+
+extension Reactive where Base: UIButton {
     
-    extension Reactive where Base: UIButton {
-        
-        /// Reactive wrapper for `setAttributedTitle(_:controlState:)`
-        public func attributedTitle(for controlState: UIControl.State = []) -> Binder<NSAttributedString?> {
-            return Binder(self.base) { button, attributedTitle -> Void in
-                button.setAttributedTitle(attributedTitle, for: controlState)
-            }
+    /// Reactive wrapper for `setAttributedTitle(_:controlState:)`
+    public func attributedTitle(for controlState: UIControl.State = []) -> Binder<NSAttributedString?> {
+        return Binder(self.base) { button, attributedTitle -> Void in
+            button.setAttributedTitle(attributedTitle, for: controlState)
         }
-        
     }
+    
+}
 #endif

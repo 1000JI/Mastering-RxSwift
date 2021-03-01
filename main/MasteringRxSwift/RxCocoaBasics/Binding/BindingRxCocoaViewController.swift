@@ -25,26 +25,37 @@ import RxSwift
 import RxCocoa
 
 class BindingRxCocoaViewController: UIViewController {
-   
-   @IBOutlet weak var valueLabel: UILabel!
-   
-   @IBOutlet weak var valueField: UITextField!
-   
-   let disposeBag = DisposeBag()
-   
-   override func viewDidLoad() {
-      super.viewDidLoad()
-      
-      valueLabel.text = ""
-      valueField.becomeFirstResponder()
-      
-      
-      
-   }
-   
-   override func viewWillDisappear(_ animated: Bool) {
-      super.viewWillDisappear(animated)
-      
-      valueField.resignFirstResponder()
-   }
+    
+    @IBOutlet weak var valueLabel: UILabel!
+    
+    @IBOutlet weak var valueField: UITextField!
+    
+    let disposeBag = DisposeBag()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        valueLabel.text = ""
+        valueField.becomeFirstResponder()
+        
+        /* 변경 전 */
+        valueField.rx.text
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { [weak self] str in
+                self?.valueLabel.text = str
+            })
+            .disposed(by: disposeBag)
+        
+        /* 변경 후 */
+        valueField.rx.text
+            .bind(to: valueLabel.rx.text) // Observable이 방출한 이벤트 Observer에게 전달하며 Main Thread를 직접 지정 할 필요 없다. Binder가 Binding을 Main Thread에서 실행해주기 때문이다.
+            .disposed(by: disposeBag)
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        valueField.resignFirstResponder()
+    }
 }
