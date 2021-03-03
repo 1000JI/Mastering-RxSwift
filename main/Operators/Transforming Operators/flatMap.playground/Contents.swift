@@ -56,5 +56,5 @@ a.onNext(11)
 
 b.onNext(22)
 /* 출력문
- next(11)
+ next(22)
  */

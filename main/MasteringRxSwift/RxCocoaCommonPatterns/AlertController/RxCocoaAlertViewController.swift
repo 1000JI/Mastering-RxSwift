@@ -25,27 +25,131 @@ import RxSwift
 import RxCocoa
 
 class RxCocoaAlertViewController: UIViewController {
-   
-   let bag = DisposeBag()
-   
-   @IBOutlet weak var colorView: UIView!
-   
-   @IBOutlet weak var oneActionAlertButton: UIButton!
-   
-   @IBOutlet weak var twoActionsAlertButton: UIButton!
-   
-   @IBOutlet weak var actionSheetButton: UIButton!
-   
-   
-   override func viewDidLoad() {
-      super.viewDidLoad()
-      
-      
-   }
+    
+    let bag = DisposeBag()
+    
+    @IBOutlet weak var colorView: UIView!
+    
+    @IBOutlet weak var oneActionAlertButton: UIButton!
+    
+    @IBOutlet weak var twoActionsAlertButton: UIButton!
+    
+    @IBOutlet weak var actionSheetButton: UIButton!
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        oneActionAlertButton.rx.tap
+            .flatMap { [unowned self] in self.info(title: "Current Color", message: self.colorView.backgroundColor?.rgbHexString) }
+            .subscribe(onNext: { [unowned self] actionType in
+                switch actionType {
+                case .ok:
+                    print(self.colorView.backgroundColor?.rgbHexString ?? "")
+                case .cancel:
+                    break
+                }
+            })
+            .disposed(by: bag)
+        
+        twoActionsAlertButton.rx.tap
+            .flatMap { [unowned self] in self.alert(title: "Reset Color", message: "Reset to black color?") }
+            .subscribe(onNext: { [unowned self] actionType in
+                switch actionType {
+                case .ok:
+                    self.colorView.backgroundColor = .black
+                case .cancel:
+                    break
+                }
+            })
+            .disposed(by: bag)
+        
+        actionSheetButton.rx.tap
+            .flatMap { [unowned self] in
+                self.colorActionSheet(colors: MaterialBlue.allColors, title: "Change Color", message: "Color one")
+            }
+            .subscribe(onNext: { [unowned self] color in
+                self.colorView.backgroundColor = color
+            })
+            .disposed(by: bag)
+    }
 }
 
 enum ActionType {
-   case ok
-   case cancel
+    case ok
+    case cancel
 }
 
+extension UIViewController {
+    
+    func info(title: String, message: String? = nil) -> Observable<ActionType> {
+        return Observable.create { [weak self] observer in
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "Ok", style: .default, handler: { _ in
+                observer.onNext(.ok)
+                observer.onCompleted()
+            })
+            
+            alert.addAction(okAction)
+            
+            self?.present(alert, animated: true, completion: nil)
+            
+            return Disposables.create {
+                alert.dismiss(animated: true, completion: nil) // 일반 CocoaTouch랑 차이점
+            }
+        }
+    }
+    
+    func alert(title: String, message: String? = nil) -> Observable<ActionType> {
+        return Observable.create { [weak self] observer in
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "Ok", style: .default, handler: { _ in
+                observer.onNext(.ok)
+                observer.onCompleted()
+            })
+            
+            alert.addAction(okAction)
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                observer.onNext(.cancel)
+                observer.onCompleted()
+            })
+            
+            alert.addAction(cancelAction)
+            
+            self?.present(alert, animated: true, completion: nil)
+            
+            return Disposables.create {
+                alert.dismiss(animated: true, completion: nil) // 일반 CocoaTouch랑 차이점
+            }
+        }
+    }
+    
+    func colorActionSheet(colors: [UIColor], title: String, message: String? = nil) -> Observable<UIColor> {
+        return Observable.create { [weak self] observer in
+            let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+            
+            for color in colors {
+                let colorAction = UIAlertAction(title: color.rgbHexString, style: .default, handler: { _ in
+                    observer.onNext(color)
+                    observer.onCompleted()
+                })
+                actionSheet.addAction(colorAction)
+            }
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+                observer.onCompleted()
+            })
+            actionSheet.addAction(cancelAction)
+            
+            self?.present(actionSheet, animated: true, completion: nil)
+            
+            return Disposables.create {
+                actionSheet.dismiss(animated: true, completion: nil)
+            }
+        }
+    }
+    
+}
