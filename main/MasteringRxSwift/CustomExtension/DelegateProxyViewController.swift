@@ -27,28 +27,77 @@ import RxCocoa
 import MapKit
 
 class DelegateProxyViewController: UIViewController {
-   
-   let bag = DisposeBag()
-   
-   @IBOutlet weak var mapView: MKMapView!
-   
-   let locationManager = CLLocationManager()
-   
-   override func viewDidLoad() {
-      super.viewDidLoad()
-      
-      
-   }
+    
+    let bag = DisposeBag()
+    
+    @IBOutlet weak var mapView: MKMapView!
+    
+    let locationManager = CLLocationManager()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+        
+        locationManager.rx.didUpdateLocations
+            .subscribe(onNext: { locations in
+                print(locations)
+            })
+            .disposed(by: bag)
+        
+        locationManager.rx.didUpdateLocations
+            .map { $0[0] }
+            .bind(to: mapView.rx.center)
+            .disposed(by: bag)
+    }
 }
 
 
 extension Reactive where Base: MKMapView {
-   public var center: Binder<CLLocation> {
-      return Binder(self.base) { mapView, location in
-         let region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 10000, longitudinalMeters: 10000)
-         self.base.setRegion(region, animated: true)
-      }
-   }
+    public var center: Binder<CLLocation> {
+        return Binder(self.base) { mapView, location in
+            let region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 10000, longitudinalMeters: 10000)
+            self.base.setRegion(region, animated: true)
+        }
+    }
 }
 
 
+// #1 Extension(필수)
+extension CLLocationManager: HasDelegate {
+    public typealias Delegate = CLLocationManagerDelegate
+}
+
+
+// #2 Extension(필수)
+class RxCLLocationManagerDelegateProxy: DelegateProxy<CLLocationManager, CLLocationManagerDelegate>, DelegateProxyType, CLLocationManagerDelegate {
+    weak private(set) var locationManager: CLLocationManager?
+    
+    init(locationManager: CLLocationManager) {
+        self.locationManager = locationManager
+        super.init(parentObject: locationManager, delegateProxy: RxCLLocationManagerDelegateProxy.self)
+    }
+    
+    static func registerKnownImplementations() {
+        self.register {
+            RxCLLocationManagerDelegateProxy(locationManager: $0)
+        }
+    }
+}
+
+
+// #3 Reactive(필수)
+extension Reactive where Base: CLLocationManager {
+    var delegate: DelegateProxy<CLLocationManager, CLLocationManagerDelegate> {
+        return RxCLLocationManagerDelegateProxy.proxy(for: base) // proxy 생성을 담당하며 이미 인스턴스가 생성되어 있다면 기존 인스턴스를 반환
+    }
+    
+    // #4 구현
+    var didUpdateLocations: Observable<[CLLocation]> {
+        return delegate.methodInvoked(#selector(CLLocationManagerDelegate.locationManager(_:didUpdateHeading:)))
+            .map { parameters in
+                return parameters[1] as! [CLLocation]
+            }
+    }
+}

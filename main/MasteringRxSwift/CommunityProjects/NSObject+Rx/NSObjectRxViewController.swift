@@ -23,35 +23,32 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import NSObject_Rx
 
 class NSObjectRxViewController: UIViewController {
-
-   let bag = DisposeBag()
-
-   let button = UIButton(type: .system)
-   let label = UILabel()
-
-   override func viewDidLoad() {
-      super.viewDidLoad()
-
-      Observable.just("Hello")
-         .subscribe { print($0) }
-         .disposed(by: bag)
-
-      button.rx.tap
-         .map { "Hello" }
-         .bind(to: label.rx.text)
-         .disposed(by: bag)
-   }
+    
+    let button = UIButton(type: .system)
+    let label = UILabel()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        Observable.just("Hello")
+            .subscribe { print($0) }
+            .disposed(by: rx.disposeBag)
+        
+        button.rx.tap
+            .map { "Hello" }
+            .bind(to: label.rx.text)
+            .disposed(by: rx.disposeBag)
+    }
 }
 
-class MyClass {
-   let bag = DisposeBag()
-
-   func doSomething() {
-      Observable.just("Hello")
-      .subscribe { print($0) }
-      .disposed(by: bag)
-   }
+class MyClass: HasDisposeBag { // class protocol로 선언되어 있어 구조체는 직접 추가해야 한다.
+    func doSomething() {
+        Observable.just("Hello")
+            .subscribe { print($0) }
+            .disposed(by: disposeBag)
+    }
 }
 
