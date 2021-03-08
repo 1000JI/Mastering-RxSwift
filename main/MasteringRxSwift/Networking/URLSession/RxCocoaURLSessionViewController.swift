@@ -26,36 +26,43 @@ import RxCocoa
 import NSObject_Rx
 
 enum ApiError: Error {
-   case badUrl
-   case invalidResponse
-   case failed(Int)
-   case invalidData
+    case badUrl
+    case invalidResponse
+    case failed(Int)
+    case invalidData
 }
 
 class RxCocoaURLSessionViewController: UIViewController {
-   
-   @IBOutlet weak var listTableView: UITableView!
-   
-   let list = BehaviorSubject(value: [Book]())
-   
-      
-   override func viewDidLoad() {
-      super.viewDidLoad()
-      
-      list
-         .bind(to: listTableView.rx.items(cellIdentifier: "cell")) { row, element, cell in
-            cell.textLabel?.text = element.title
-            cell.detailTextLabel?.text = element.desc
-         }
-         .disposed(by: rx.disposeBag)
-      
-      fetchBookList()
-   }
-   
-     
-   func fetchBookList() {
-
-      
-
-   }
+    
+    @IBOutlet weak var listTableView: UITableView!
+    
+    let list = BehaviorSubject(value: [Book]())
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        list
+            .bind(to: listTableView.rx.items(cellIdentifier: "cell")) { row, element, cell in
+                cell.textLabel?.text = element.title
+                cell.detailTextLabel?.text = element.desc
+            }
+            .disposed(by: rx.disposeBag)
+        
+        fetchBookList()
+    }
+    
+    
+    func fetchBookList() {
+        
+        Observable.just(booksUrlStr)
+            .map { URL(string: $0)! }
+            .map { URLRequest(url: $0) }
+            .flatMap { URLSession.shared.rx.data(request: $0) }
+            .map(BookList.parse(data:))
+            .asDriver(onErrorJustReturn: [])
+            .drive(list)
+            .disposed(by: rx.disposeBag)
+        
+    }
 }
